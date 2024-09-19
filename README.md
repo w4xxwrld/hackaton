@@ -1,4 +1,4 @@
 # hackaton
-MISHA GAY
+MISHA NOT GAY
 SHAKH NOT GAY
 
