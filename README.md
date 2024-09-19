@@ -1,10 +1,4 @@
-<<<<<<< HEAD
 # React + TypeScript + Vite
-=======
-# hackaton
-MISHA NOT GAY
-SHAKH NOT GAY
->>>>>>> refs/remotes/origin/main
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
