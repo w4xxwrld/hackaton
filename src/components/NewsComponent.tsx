@@ -1,22 +1,40 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Avatar, List, Space } from 'antd';
+import '../firebase';
+import { collection, getDocs, DocumentData, getFirestore } from "firebase/firestore";
 
-const data = [
-    {
-        title: 'Ant Design Title 1',
-    },
-    {
-        title: 'Ant Design Title 2',
-    },
-    {
-        title: 'Ant Design Title 3',
-    },
-    {
-        title: 'Ant Design Title 4',
-    },
-];
+interface NewsComponentProps {
+    listSize?: number; 
+}
 
-const NewsComponent: React.FC = () => {
+const truncateText = (text: string, maxLength: number) => {
+    if (text.length > maxLength) {
+        return text.slice(0, maxLength) + '...';
+    }
+    return text;
+};
+
+const NewsComponent: React.FC<NewsComponentProps> = ({ listSize = 4 }) => {
+    const [storedValues, setStoredValues] = useState<DocumentData[]>([]);
+    const db = getFirestore();
+
+    useEffect(() => {
+        const fetchDataFromFirestore = async () => {
+            try {
+                const querySnapshot = await getDocs(collection(db, "news"));
+                const temporaryArr: DocumentData[] = [];
+                querySnapshot.forEach((doc) => {
+                    temporaryArr.push(doc.data());
+                });
+                setStoredValues(temporaryArr);
+            } catch (error) {
+                console.error("Error fetching documents: ", error);
+            }
+        };
+
+        fetchDataFromFirestore();
+    }, [db]);
+
     return (
         <>
             <Space
@@ -26,16 +44,21 @@ const NewsComponent: React.FC = () => {
                 }}
                 size="middle"
             >
-                <span>Daily Hackaton News</span>
+                <span>Hackaton News</span>
             </Space>
             <List
-                dataSource={data}
+                dataSource={storedValues.slice(0, listSize)} 
                 renderItem={(item, index) => (
                     <List.Item>
                         <List.Item.Meta
-                            avatar={<Avatar src={`https://api.dicebear.com/7.x/miniavs/svg?seed=${index}`} />}
-                            title={<a href="https://ant.design">{item.title}</a>}
-                            description="Ant Design, a design language for background applications, is refined by Ant UED Team"
+                            avatar={<Avatar src={`https://picsum.photos/id/${index}/200/200`} />}
+                            title={<a href="https://ant.design">{item.Name || `News ${index + 1}`}</a>}
+                            description={
+                                <>
+                                    <div>{item.Date || "N/A"}</div>
+                                    <div>{truncateText(item.MainText || "N/A", 100)}</div>
+                                </>
+                            }
                         />
                     </List.Item>
                 )}

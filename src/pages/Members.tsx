@@ -12,7 +12,7 @@ const Members: React.FC = () => {
             <HeaderLayout />
             <Content className="pt-16 px-6 mt-4">
                 <div className="bg-white p-6 rounded shadow-md">
-                    <MembersComponent/>
+                    <MembersComponent listSize={1000}/>
                 </div>
             </Content>
         <FooterLayout/>

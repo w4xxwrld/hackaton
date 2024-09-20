@@ -1,22 +1,34 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Avatar, List, Space } from 'antd';
+import { Link } from 'react-router-dom'; // For routing
+import '../firebase';
+import { collection, getDocs, DocumentData, getFirestore } from 'firebase/firestore';
 
-const data = [
-    {
-        title: 'Ant Design Title 1',
-    },
-    {
-        title: 'Ant Design Title 2',
-    },
-    {
-        title: 'Ant Design Title 3',
-    },
-    {
-        title: 'Ant Design Title 4',
-    },
-];
+interface TeamsComponentProps {
+    listSize?: number;
+}
 
-const TeamsComponent: React.FC = () => {
+const TeamsComponent: React.FC<TeamsComponentProps> = ({ listSize = 4 }) => {
+    const [teams, setTeams] = useState<DocumentData[]>([]);
+    const db = getFirestore();
+
+    useEffect(() => {
+        const fetchTeamsFromFirestore = async () => {
+            try {
+                const querySnapshot = await getDocs(collection(db, 'teams'));
+                const teamsArray: DocumentData[] = [];
+                querySnapshot.forEach((doc) => {
+                    teamsArray.push({ id: doc.id, ...doc.data() }); // Include document id
+                });
+                setTeams(teamsArray);
+            } catch (error) {
+                console.error('Error fetching documents: ', error);
+            }
+        };
+
+        fetchTeamsFromFirestore();
+    }, [db]);
+
     return (
         <>
             <Space
@@ -26,16 +38,20 @@ const TeamsComponent: React.FC = () => {
                 }}
                 size="middle"
             >
-                <span>Hackaton Teams</span>
+                <span>Hackathon Teams</span>
             </Space>
             <List
-                dataSource={data}
-                renderItem={(item, index) => (
+                dataSource={teams.slice(0, listSize)} 
+                renderItem={(team, index) => (
                     <List.Item>
                         <List.Item.Meta
-                            avatar={<Avatar src={`https://api.dicebear.com/7.x/miniavs/svg?seed=${index}`} />}
-                            title={<a href="https://ant.design">{item.title}</a>}
-                            description="Ant Design, a design language for background applications, is refined by Ant UED Team"
+                            avatar={<Avatar src={`https://api.dicebear.com/9.x/shapes/svg?seed=${team.id}`} />}
+                            title={
+                                <Link to={`/team/${team.id}`}>
+                                    {team.Name || `Team ${index + 1}`}
+                                </Link>
+                            }
+                            description={`City: ${team.City} | Rating: ${team.Rating}`}
                         />
                     </List.Item>
                 )}

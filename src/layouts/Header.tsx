@@ -20,7 +20,7 @@ const HeaderLayout: React.FC = () => {
       case '/members':
         return '4';
       default:
-        return '1';
+        return '';
     }
   };
 
